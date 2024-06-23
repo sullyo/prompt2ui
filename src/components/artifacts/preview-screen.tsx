@@ -6,6 +6,7 @@ import * as Babel from "@babel/standalone";
 import * as phosphorIcons from "@phosphor-icons/react";
 import * as recharts from "recharts";
 import * as shadcnComponents from "@/components/ui";
+import * as datefns from "date-fns";
 
 interface PreviewScreenProps {
   code: string;
@@ -124,6 +125,7 @@ export function PreviewScreen({ code }: PreviewScreenProps) {
           ...shadcnComponents,
           ...phosphorIcons,
           ...recharts,
+          ...datefns,
         };
 
         const fullCode = `

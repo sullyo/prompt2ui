@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { LiveEditor, LiveError, LivePreview, LiveProvider } from "react-live";
 import * as phosphorIcons from "@phosphor-icons/react";
 import * as recharts from "recharts";
+import * as datefns from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import * as shadcnComponents from "@/components/ui";
 
@@ -21,7 +22,7 @@ export function Playground({ initialCode, isCodeLoading }: PlaygroundProps) {
     ...shadcnComponents,
     ...phosphorIcons,
     ...recharts,
-    // Add any other components or functions you want to make available
+    ...datefns,
   };
 
   // This is a wrapper component that will be used by LivePreview
