@@ -8,12 +8,21 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Markdown from "@/components/markdown/markdown";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type Message = {
   role: string;
   content: string;
   id: string;
 };
+
+const ArtifactLoader = ({ name }: { name: string }) => (
+  <Card className="w-full max-w-sm">
+    <CardHeader>
+      <CardTitle>{name}</CardTitle>
+    </CardHeader>
+  </Card>
+);
 
 const ChatMessage = ({ message }: { message: Message }) => {
   const isUser = message.role === "user";
@@ -51,6 +60,7 @@ export function ClientChat({
 }) {
   const { messages, input, setInput, append, isLoading } = useChat();
   const [parsedMessages, setParsedMessages] = useState<Message[]>([]);
+  const [currentArtifact, setCurrentArtifact] = useState<string | null>(null);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -60,32 +70,68 @@ export function ClientChat({
   }, [messages]);
 
   const parseMessage = (message: Message) => {
-    const content = message.content;
+    let content = message.content;
 
-    // Remove thinking tags
-    const withoutThinking = content.replace(
-      /<antthinking>.*?<\/antthinking>/gs,
-      ""
-    );
+    // Remove thinking tags and their content
+    content = content.replace(/<antthinking>.*?<\/antthinking>/gs, "");
 
-    // Extract artifact content and set it
-    const artifactRegex = /<antartifact.*?>([\s\S]*?)<\/antartifact>/g;
-    const artifactMatch = artifactRegex.exec(withoutThinking);
+    // Handle artifact tags
+    const artifactStartIndex = content.indexOf("<antartifact");
+    const artifactEndIndex = content.indexOf("</antartifact>");
 
-    if (artifactMatch) {
-      setArtifactContent(artifactMatch[1] || "");
+    if (artifactStartIndex !== -1) {
+      if (artifactEndIndex !== -1) {
+        // Complete artifact
+        const artifactContent = content.slice(
+          content.indexOf(">", artifactStartIndex) + 1,
+          artifactEndIndex
+        );
+        setArtifactContent(artifactContent);
+        setCurrentArtifact(null);
+        content =
+          content.slice(0, artifactStartIndex) +
+          content.slice(artifactEndIndex + "</antartifact>".length);
+      } else {
+        // Start of artifact
+        setCurrentArtifact(content.slice(artifactStartIndex));
+        content = content.slice(0, artifactStartIndex);
+      }
+    } else if (currentArtifact) {
+      if (artifactEndIndex !== -1) {
+        // End of artifact
+        const fullArtifact =
+          currentArtifact + content.slice(0, artifactEndIndex);
+        const artifactContent = fullArtifact.slice(
+          fullArtifact.indexOf(">") + 1
+        );
+        setArtifactContent(artifactContent);
+        setCurrentArtifact(null);
+        content = content.slice(artifactEndIndex + "</antartifact>".length);
+      } else {
+        // Continuing artifact
+        setCurrentArtifact(currentArtifact + content);
+        content = "";
+      }
     }
 
-    // Replace artifacts with placeholder
-    const withArtifactPlaceholder = withoutThinking.replace(
-      /<antartifact.*?<\/antartifact>/gs,
-      "[Artifact]"
-    );
-
-    setParsedMessages((prevMessages) => [
-      ...prevMessages.filter((m) => m.id !== message.id),
-      { ...message, content: withArtifactPlaceholder },
-    ]);
+    // Update parsed messages if there's content
+    if (content.trim()) {
+      setParsedMessages((prevMessages) => {
+        const existingIndex = prevMessages.findIndex(
+          (m) => m.id === message.id
+        );
+        if (existingIndex !== -1) {
+          const updatedMessages = [...prevMessages];
+          updatedMessages[existingIndex] = {
+            ...message,
+            content: content.trim(),
+          };
+          return updatedMessages;
+        } else {
+          return [...prevMessages, { ...message, content: content.trim() }];
+        }
+      });
+    }
   };
 
   const handleSend = () => {
@@ -102,6 +148,7 @@ export function ClientChat({
           {parsedMessages.map((message) => (
             <ChatMessage key={message.id} message={message} />
           ))}
+          {currentArtifact && <ArtifactLoader name="Loading Artifact..." />}
           {isLoading && <Spinner className="size-5 animate-spin" />}
         </div>
       </div>

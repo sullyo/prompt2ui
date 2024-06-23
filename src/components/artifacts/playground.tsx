@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { LiveEditor, LiveError, LivePreview, LiveProvider } from "react-live";
+import * as phosphorIcons from "@phosphor-icons/react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import * as shadcnComponents from "@/components/ui";
@@ -14,9 +15,10 @@ interface PlaygroundProps {
 
 export function Playground({ initialCode }: PlaygroundProps) {
   const [code, setCode] = useState(initialCode);
-
+  console.log(code);
   const scope = {
     ...shadcnComponents,
+    ...phosphorIcons,
     // Add any other components or functions you want to make available
   };
 

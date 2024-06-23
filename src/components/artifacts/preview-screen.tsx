@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import * as React from "react";
 import * as Babel from "@babel/standalone";
+import * as phosphorIcons from "@phosphor-icons/react";
 
 import * as shadcnComponents from "@/components/ui";
 
@@ -121,6 +122,7 @@ export function PreviewScreen({ code }: PreviewScreenProps) {
             useEffect: React.useEffect,
           },
           ...shadcnComponents,
+          ...phosphorIcons,
         };
 
         const fullCode = `
