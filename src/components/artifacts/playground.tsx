@@ -11,11 +11,12 @@ import { PreviewScreen } from "./preview-screen";
 
 interface PlaygroundProps {
   initialCode: string;
+  isCodeLoading: boolean;
 }
 
-export function Playground({ initialCode }: PlaygroundProps) {
+export function Playground({ initialCode, isCodeLoading }: PlaygroundProps) {
   const [code, setCode] = useState(initialCode);
-  console.log(code);
+
   const scope = {
     ...shadcnComponents,
     ...phosphorIcons,
@@ -35,14 +36,16 @@ export function Playground({ initialCode }: PlaygroundProps) {
     <LiveProvider code={code} scope={scope} noInline={true}>
       <Tabs defaultValue="preview" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="preview">Preview</TabsTrigger>
+          {!isCodeLoading && <TabsTrigger value="preview">Preview</TabsTrigger>}
           <TabsTrigger value="code">Code</TabsTrigger>
         </TabsList>
-        <TabsContent value="preview">
-          <div className="mt-4 rounded-lg border p-4">
-            <LivePreview Component={PreviewWrapper} />
-          </div>
-        </TabsContent>
+        {!isCodeLoading && (
+          <TabsContent value="preview">
+            <div className="mt-4 rounded-lg border p-4">
+              <LivePreview Component={PreviewWrapper} />
+            </div>
+          </TabsContent>
+        )}
         <TabsContent value="code">
           <div className="mt-4 rounded-lg border p-4">
             <LiveEditor

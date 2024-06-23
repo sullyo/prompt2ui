@@ -30,19 +30,23 @@ export default MyComponent;
 
 export default function Page() {
   const [code, setCode] = React.useState(initialCode);
+  const [isCodeLoading, setIsCodeLoading] = React.useState(false);
 
   return (
     <div className="h-screen">
       <ResizablePanelGroup direction="horizontal" className="h-full">
         <ResizablePanel defaultSize={50} minSize={30}>
           <div className="overflow-auto h-full p-4">
-            <ClientChat setArtifactContent={setCode} />
+            <ClientChat
+              setArtifactContent={setCode}
+              setIsCodeLoading={setIsCodeLoading}
+            />
           </div>
         </ResizablePanel>
         <ResizableHandle />
         <ResizablePanel defaultSize={50} minSize={30}>
           <div className="overflow-auto h-full p-4">
-            <Playground initialCode={code} />
+            <Playground initialCode={code} isCodeLoading={isCodeLoading} />
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>

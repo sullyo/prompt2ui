@@ -73,8 +73,10 @@ const ChatMessage = ({ message }: { message: Message }) => {
 
 export function ClientChat({
   setArtifactContent,
+  setIsCodeLoading,
 }: {
   setArtifactContent: (content: string) => void;
+  setIsCodeLoading: (loading: boolean) => void;
 }) {
   const { messages, input, setInput, append, isLoading } = useChat();
   const [parsedMessages, setParsedMessages] = useState<Message[]>([]);
@@ -115,13 +117,14 @@ export function ClientChat({
           artifactEndIndex
         );
         setArtifactContent(artifactContent);
+        setIsCodeLoading(false);
         setCurrentArtifact(null);
         content =
           content.slice(0, artifactStartIndex) +
           content.slice(artifactEndIndex + "</antartifact>".length);
       } else {
-        // Start of artifact
         setCurrentArtifact(content.slice(artifactStartIndex));
+        setIsCodeLoading(true);
         content = content.slice(0, artifactStartIndex);
       }
     } else if (currentArtifact) {
