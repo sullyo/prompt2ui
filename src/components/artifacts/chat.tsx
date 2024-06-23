@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PaperPlaneRight, Spinner } from "@phosphor-icons/react";
+import { Code, PaperPlaneRight, Spinner } from "@phosphor-icons/react";
 import { useChat } from "ai/react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -16,11 +16,29 @@ type Message = {
   id: string;
 };
 
-const ArtifactLoader = ({ name }: { name: string }) => (
-  <Card className="w-full max-w-sm">
-    <CardHeader>
-      <CardTitle>{name}</CardTitle>
-    </CardHeader>
+const Artifact = ({
+  title,
+  loading = true,
+}: {
+  title: string;
+  loading?: boolean;
+}) => (
+  <Card className="w-full max-w-sm bg-background border border-border">
+    <CardContent className="flex items-center gap-3 p-3">
+      <div className="bg-muted rounded-md p-2">
+        {loading ? (
+          <Spinner className="h-5 w-5 text-foreground animate-spin" />
+        ) : (
+          <Code className="h-5 w-5 text-foreground" />
+        )}
+      </div>
+      <div className="flex-1">
+        <p className="text-sm font-medium text-foreground">{title}</p>
+        <p className="text-xs text-muted-foreground">
+          {loading ? "Generating..." : "Click to open component"}
+        </p>
+      </div>
+    </CardContent>
   </Card>
 );
 
@@ -61,6 +79,7 @@ export function ClientChat({
   const { messages, input, setInput, append, isLoading } = useChat();
   const [parsedMessages, setParsedMessages] = useState<Message[]>([]);
   const [currentArtifact, setCurrentArtifact] = useState<string | null>(null);
+  const [isThinking, setIsThinking] = useState(false);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -71,6 +90,15 @@ export function ClientChat({
 
   const parseMessage = (message: Message) => {
     let content = message.content;
+
+    // Check for thinking tags
+    if (content.includes("<antthinking>")) {
+      setIsThinking(true);
+      setCurrentArtifact("");
+    }
+    if (content.includes("</antthinking>")) {
+      setIsThinking(false);
+    }
 
     // Remove thinking tags and their content
     content = content.replace(/<antthinking>.*?<\/antthinking>/gs, "");
@@ -115,7 +143,7 @@ export function ClientChat({
     }
 
     // Update parsed messages if there's content
-    if (content.trim()) {
+    if (content.trim() && !isThinking) {
       setParsedMessages((prevMessages) => {
         const existingIndex = prevMessages.findIndex(
           (m) => m.id === message.id
@@ -148,8 +176,14 @@ export function ClientChat({
           {parsedMessages.map((message) => (
             <ChatMessage key={message.id} message={message} />
           ))}
-          {currentArtifact && <ArtifactLoader name="Loading Artifact..." />}
-          {isLoading && <Spinner className="size-5 animate-spin" />}
+          <div className="ml-5">
+            {currentArtifact && (
+              <Artifact title="Loading Artifact..." loading={true} />
+            )}
+            {isLoading && !currentArtifact && (
+              <Spinner className="size-5 animate-spin" />
+            )}
+          </div>
         </div>
       </div>
       <div className="bg-background flex items-center gap-2 border-t px-4 py-3">
