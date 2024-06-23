@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import * as React from "react";
 import * as Babel from "@babel/standalone";
 import * as phosphorIcons from "@phosphor-icons/react";
-
+import * as recharts from "recharts";
 import * as shadcnComponents from "@/components/ui";
 
 interface PreviewScreenProps {
@@ -123,6 +123,7 @@ export function PreviewScreen({ code }: PreviewScreenProps) {
           },
           ...shadcnComponents,
           ...phosphorIcons,
+          ...recharts,
         };
 
         const fullCode = `

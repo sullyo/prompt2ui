@@ -23,7 +23,7 @@ const Artifact = ({
   title: string;
   loading?: boolean;
 }) => (
-  <Card className="w-full max-w-sm bg-background border border-border">
+  <Card className="w-full max-w-sm bg-background border border-border ml-5">
     <CardContent className="flex items-center gap-3 p-3">
       <div className="bg-muted rounded-md p-2">
         {loading ? (
