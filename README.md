@@ -12,6 +12,9 @@ yarn dev
 pnpm dev
 # or
 bun dev
+# or Docker If the make command is available...
+make build # Docker Image Build
+make run # Docker Run
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
